@@ -34,36 +34,87 @@
                                 BorderThickness="2.5"
                                 Opacity="0"
                                 RenderTransformOrigin="0.5,0.5">
-                                <Border.RenderTransform>
-                                    <ScaleTransform x:Name="GlowScale" ScaleX="1" ScaleY="1"/>
-                                </Border.RenderTransform>
-                                <Border.Effect>
-                                    <BlurEffect Radius="20"/>
-                                </Border.Effect>
+                                    <Border.RenderTransform>
+                                        <ScaleTransform x:Name="GlowScale" ScaleX="1" ScaleY="1"/>
+                                    </Border.RenderTransform>
+                                    <Border.Effect>
+                                        <BlurEffect Radius="20"/>
+                                    </Border.Effect>
                             </Border>
                             <Border x:Name="KeyBody"
-                                Background="#1E1E1E"
-                                CornerRadius="10"
-                                BorderBrush="#484848"
-                                BorderThickness="1,1,1,4">
+                             Background="#1E1E1E"
+                             CornerRadius="10"
+                             BorderBrush="#484848"
+                             BorderThickness="1,1,1,4">
                                 <Grid>
                                     <StackPanel HorizontalAlignment="Right"
-                                            VerticalAlignment="Bottom"
-                                            Margin="0,0,12,10">
-                                        <TextBlock Text="↵"
-                                               FontSize="20"
-                                               Foreground="#D0D0D0"
-                                               HorizontalAlignment="Right"/>
-                                        <TextBlock Text="{TemplateBinding Content}"
-                                               FontSize="{TemplateBinding FontSize}"
-                                               FontWeight="{TemplateBinding FontWeight}"
-                                               Foreground="{TemplateBinding Foreground}"/>
+                                                VerticalAlignment="Bottom"
+                                                Margin="0,0,12,10">   
+
+                                        <TextBlock x:Name="EnterArrow"
+                                            Text="↵"
+                                            FontSize="20"
+                                            Foreground="#d0d0d0"
+                                            HorizontalAlignment="Right"/>
+
+                                        <!-- дві копії тексту в одній комірці Grid -->
+                                        <Grid HorizontalAlignment="Right">
+
+                                            <!-- шар 1: ореол -->
+                                            <TextBlock x:Name="EnterGlow"
+                                                Text="{TemplateBinding Content}"
+                                                FontSize="{TemplateBinding FontSize}"
+                                                FontWeight="{TemplateBinding FontWeight}"
+                                                Foreground="#39FF88"
+                                                Opacity="0"
+                                                IsHitTestVisible="False">
+                                                <TextBlock.Effect>
+                                                    <BlurEffect Radius="14"/>
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+
+                                            <!-- шар 2: чіткий текст -->
+                                            <TextBlock x:Name="EnterText"
+                                                Text="{TemplateBinding Content}"
+                                                FontSize="{TemplateBinding FontSize}"
+                                                FontWeight="{TemplateBinding FontWeight}"
+                                                Foreground="#5A5A5A"/>
+                                        </Grid>
                                     </StackPanel>
                                 </Grid>
                             </Border>
                         </Grid>
 
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter TargetName="EnterText" Property="Foreground" Value="#C8FFDC"/>
+                                <Setter TargetName="EnterArrow" Property="Foreground" Value="#8CFFB8"/>
+                                <Setter TargetName="EnterText" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#00FF7F"
+                                                          BlurRadius="22"
+                                                          ShadowDepth="0"
+                                                          Opacity="0.95"/>
+                                    </Setter.Value>
+                                </Setter>
+
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard x:Name="GlowPulse">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="EnterGlow"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             From="0.25" To="1"
+                                                             Duration="0:0:1.1"
+                                                             AutoReverse="True"
+                                                             RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+
+                                <Trigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="GlowPulse"/>
+                                </Trigger.ExitActions>
+                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
@@ -73,7 +124,7 @@
                                             <DoubleAnimation Storyboard.TargetName="GlowBorder" Storyboard.TargetProperty="Opacity" To="0.88" Duration="0:0:0.18"/>
                                             <DoubleAnimation Storyboard.TargetName="GlowScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.18"/>
                                             <DoubleAnimation Storyboard.TargetName="GlowScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.18"/>
-                                            <ColorAnimation Storyboard.TargetName="KeyBody" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#F1F1F1" Duration="0:0:0.18"/>
+                                            <ColorAnimation Storyboard.TargetName="KeyBody" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#2c2c2c" Duration="0:0:0.3"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -85,7 +136,7 @@
                                             <DoubleAnimation Storyboard.TargetName="GlowBorder" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18"/>
                                             <DoubleAnimation Storyboard.TargetName="GlowScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.18"/>
                                             <DoubleAnimation Storyboard.TargetName="GlowScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.18"/>
-                                            <ColorAnimation Storyboard.TargetName="KeyBody" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#1E1E1E" Duration="0:0:0.18"/>
+                                            <ColorAnimation Storyboard.TargetName="KeyBody" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#1E1E1E" Duration="0:0:0.3"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>

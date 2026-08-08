@@ -104,6 +104,7 @@ namespace Tringle_calcolator
             UpdateEnterButton(ready);
         }
 
+
         /// <summary>
         /// Двостороння синхронізація: канвас ↔ ліва панель
         /// </summary>
@@ -386,24 +387,7 @@ namespace Tringle_calcolator
         private void UpdateEnterButton(bool ready)
         {
             if (EnterButton == null) return;
-
-            EnterButton.IsEnabled = ready;
-
-            // Змінюємо колір тіла кнопки через Tag
-            // Анімація кольору вже є в XAML стилі для hover,
-            // але базовий колір KeyBody змінюємо напряму
-            var keyBody = FindVisualChild<Border>(EnterButton, "KeyBody");
-            if (keyBody != null)
-            {
-                keyBody.Background = new SolidColorBrush(
-                    ready
-                        ? Color.FromRgb(0x2E, 0x7D, 0x32)   // темно-зелений
-                        : Color.FromRgb(0x1E, 0x1E, 0x1E)); // темно-сірий
-            }
-
-            // Колір тексту
-            EnterButton.Foreground = new SolidColorBrush(
-                ready ? Colors.White : Color.FromRgb(0x60, 0x60, 0x60));
+            EnterButton.IsEnabled = ready;   // все інше робить XAML
         }
 
         // ─────────────────────────────────────────────
@@ -447,18 +431,7 @@ namespace Tringle_calcolator
         /// Знаходить дочірній елемент у Visual Tree за іменем.
         /// Потрібно для зміни кольору KeyBody всередині шаблону кнопки.
         /// </summary>
-        private static T? FindVisualChild<T>(DependencyObject parent, string name)
-            where T : FrameworkElement
-        {
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T t && t.Name == name) return t;
-                var result = FindVisualChild<T>(child, name);
-                if (result != null) return result;
-            }
-            return null;
-        }
+        
         // ────────────────────────────────────────────
         // ОБНУЛЕННЯ ЗНАЧЕНЬ ПРИ ПЕРЕКЛЮЧЕННІ
         //─────────────────────────────────────────────
