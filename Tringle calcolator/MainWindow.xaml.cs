@@ -34,9 +34,9 @@ namespace Tringle_calcolator
         // Захист від зациклення при програмному заповненні TextBox-ів
         private bool _suppressTextChanged = false;
 
-        // Полігон трикутника на канвасі
+        // Полігон трикутника на канвасі мітка прямого кута
         private Polygon? _trianglePolygon;
-
+        private Polyline? _rightAngleMark;
         // ─────────────────────────────────────────────
         //  ІНІЦІАЛІЗАЦІЯ
         // ─────────────────────────────────────────────
@@ -215,8 +215,9 @@ namespace Tringle_calcolator
 
         private void SetMode(bool rightTriangle)
         {
-            ClearAll();
+            
             _isRightTriangleMode = rightTriangle;
+            ClearAll();
 
             if (rightTriangle)
             {
@@ -253,10 +254,17 @@ namespace Tringle_calcolator
         /// </summary>
         private void DrawDefaultTriangle()
         {
-            var defaultResult = TriangleCalculator.TryCalculate(3, 4, 5, null, null, null);
+            /* var defaultResult = TriangleCalculator.TryCalculate(3, 4, 5, null, null, null);
 
-            if (defaultResult != null)
+             if (defaultResult != null)
+                 DrawTriangle(defaultResult, defaultColor: true);
+            */
+
+            var defaultResult = _isRightTriangleMode ? TriangleCalculator.TryCalculate(5, 4, 3, null, null, null) : TriangleCalculator.TryCalculate(6, 7, 5, null, null, null);
+            if(defaultResult != null)
+            {
                 DrawTriangle(defaultResult, defaultColor: true);
+            }
         }
 
         private void RedrawCurrentTriangle()
@@ -285,10 +293,12 @@ namespace Tringle_calcolator
         private void DrawTriangle(TriangleResult r, bool defaultColor = false)
         {
             if (CANVAS.ActualWidth <= 0 || CANVAS.ActualHeight <= 0) return;
-
+            // DEFAULT COLOR SET UP HERE ----------------------------------------------------- DEFAULT COLOR SET UP HERE 
             Color fill = defaultColor
                 ? Color.FromRgb(0xFF, 0x92, 0x27)
                 : Color.FromRgb(0x33, 0xAA, 0xFF);
+
+            const double eps = 0.01;
 
             double padding = Math.Min(CANVAS.ActualWidth, CANVAS.ActualHeight) * 0.2;
             double availW = CANVAS.ActualWidth - padding * 2;
@@ -306,14 +316,14 @@ namespace Tringle_calcolator
             double totalWidth = rightExtent - leftExtent;
 
             double scale = Math.Min(availW / totalWidth, availH / height);
-            double startX = padding + (availW - totalWidth * scale) / 2.0
-                            - leftExtent * scale;
+            double startX = padding + (availW - totalWidth * scale) / 2.0 - leftExtent * scale;
             double baseY = padding + availH;
 
             Point ptC = new Point(startX, baseY);
             Point ptB = new Point(startX + r.SideBC * scale, baseY);
             Point ptA = new Point(startX + aXoffset * scale, baseY - height * scale);
 
+            if (height <= 0 || totalWidth <= 0) return;
             if (_trianglePolygon == null)
             {
                 _trianglePolygon = new Polygon
@@ -328,7 +338,48 @@ namespace Tringle_calcolator
 
             _trianglePolygon.Fill = new SolidColorBrush(fill);
             _trianglePolygon.Points = new PointCollection { ptA, ptB, ptC };
+
+            if (Math.Abs(r.AngleA - 90) < eps)      DrawRightAngleMark(ptA, ptB, ptC, true);
+            else if (Math.Abs(r.AngleB - 90) < eps) DrawRightAngleMark(ptB, ptA, ptC, true);
+            else if (Math.Abs(r.AngleC - 90) < eps) DrawRightAngleMark(ptC, ptA, ptB, true);
+            else                                    DrawRightAngleMark(default,default,default,default);
+
             PositionCanvasLabels(ptA, ptB, ptC);
+        }
+
+        private void DrawRightAngleMark(Point vertex, Point p1, Point p2, bool show)
+        {
+            if (_rightAngleMark == null)
+            {
+                _rightAngleMark = new Polyline
+                {
+                    Stroke = new SolidColorBrush(Colors.LightGray),
+                    StrokeThickness = 1.5,
+                    Fill = Brushes.Transparent
+                };
+                Canvas.SetLeft(_rightAngleMark, 0);
+                Canvas.SetTop(_rightAngleMark, 0);
+                CANVAS.Children.Add(_rightAngleMark);
+            }
+            if (!show)
+            {
+                _rightAngleMark.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            _rightAngleMark.Visibility = Visibility.Visible;
+
+            const double size = 12.0;
+            Vector d1 = p1 - vertex; d1.Normalize();
+            Vector d2 = p2 - vertex; d2.Normalize();
+
+            _rightAngleMark.Points = new PointCollection
+            {
+                vertex + d1 * size,
+                vertex + (d1 + d2) * size,
+                vertex + d2 * size
+            };
+            Panel.SetZIndex(_rightAngleMark, 150);
         }
 
         private void PositionCanvasLabels(Point ptA, Point ptB, Point ptC)
