@@ -34,6 +34,9 @@ namespace Tringle_calcolator
         // Захист від зациклення при програмному заповненні TextBox-ів
         private bool _suppressTextChanged = false;
 
+        // Прапорець резульату + вибіркове очищення
+        private bool _hasResult = false;
+
         // Полігон трикутника на канвасі мітка прямого кута
         private Polygon? _trianglePolygon;
         private Polyline? _rightAngleMark;
@@ -84,6 +87,7 @@ namespace Tringle_calcolator
             box.TextChanged += (_, _) =>
             {
                 if (_suppressTextChanged) return;
+                if (_hasResult) ClearAllExept(box);
                 setter(ParseBox(box));
                 OnAnyInputChanged();
             };
@@ -96,12 +100,13 @@ namespace Tringle_calcolator
 
         private void OnAnyInputChanged()
         {
-            //ClearAll(); // Очищуємо результат при будь-якій зміні
+            //ClearAll(); // Очищуємо результат при будь-якій зміні, кайф
             bool ready = TriangleCalculator.HasEnoughData(
                 _sideAB, _sideBC, _sideCA,
                 _angleA, _angleB, _angleC);
 
             UpdateEnterButton(ready);
+            
         }
 
 
@@ -114,12 +119,15 @@ namespace Tringle_calcolator
             canvasBox.TextChanged += (_, _) =>
             {
                 if (_suppressTextChanged) return;
+                if(_hasResult) ClearAllExept(panelBox);
                 _suppressTextChanged = true;
                 panelBox.Text = canvasBox.Text;
                 _suppressTextChanged = false;
                 // Тригеримо OnAnyInputChanged вручну бо panelBox.TextChanged заблокований
-                var setter = _boxSetters[panelBox];
-                setter(ParseBox(panelBox));
+                /* var setter = _boxSetters[panelBox];
+                 setter(ParseBox(panelBox));
+                 OnAnyInputChanged(); */
+                _boxSetters[panelBox](ParseBox(panelBox));
                 OnAnyInputChanged();
             };
 
@@ -140,7 +148,6 @@ namespace Tringle_calcolator
 
         private void OnEnterClick(object sender, RoutedEventArgs e)
         {
-            
             ComputeAndDraw();
         }
 
@@ -151,7 +158,7 @@ namespace Tringle_calcolator
             if (e.Key == Key.Enter && EnterButton.IsEnabled)
                 ComputeAndDraw();
 
-            if (e.Key == Key.Space)
+            if (e.Key == Key.Space && !(Keyboard.FocusedElement is TextBox))
                 ClearAll();
         }
 
@@ -186,6 +193,7 @@ namespace Tringle_calcolator
         private void FillResults(TriangleResult r)
         {
             _suppressTextChanged = true;
+            _hasResult = true;
             try
             {
                 ABTextBox.Text = FormatValue(r.SideAB);
@@ -202,6 +210,10 @@ namespace Tringle_calcolator
                 _angleA = r.AngleA;
                 _angleB = r.AngleB;
                 _angleC = r.AngleC;
+
+                CanvasABBox.Text = ABTextBox.Text;
+                CanvasBCBox.Text = BCTextBox.Text;
+                CanvasCABox.Text = CATextBox.Text;
             }
             finally
             {
@@ -260,7 +272,8 @@ namespace Tringle_calcolator
                  DrawTriangle(defaultResult, defaultColor: true);
             */
 
-            var defaultResult = _isRightTriangleMode ? TriangleCalculator.TryCalculate(5, 4, 3, null, null, null) : TriangleCalculator.TryCalculate(6, 7, 5, null, null, null);
+            var defaultResult = _isRightTriangleMode ? TriangleCalculator.TryCalculate(17, 8, 15, null, null, null) : TriangleCalculator.TryCalculate(6, 7, 5, null, null, null);
+
             if(defaultResult != null)
             {
                 DrawTriangle(defaultResult, defaultColor: true);
@@ -315,6 +328,8 @@ namespace Tringle_calcolator
             double rightExtent = Math.Max(r.SideBC, aXoffset);
             double totalWidth = rightExtent - leftExtent;
 
+            if (height <= 0 || totalWidth <= 0) return;
+
             double scale = Math.Min(availW / totalWidth, availH / height);
             double startX = padding + (availW - totalWidth * scale) / 2.0 - leftExtent * scale;
             double baseY = padding + availH;
@@ -323,7 +338,7 @@ namespace Tringle_calcolator
             Point ptB = new Point(startX + r.SideBC * scale, baseY);
             Point ptA = new Point(startX + aXoffset * scale, baseY - height * scale);
 
-            if (height <= 0 || totalWidth <= 0) return;
+           
             if (_trianglePolygon == null)
             {
                 _trianglePolygon = new Polygon
@@ -339,10 +354,10 @@ namespace Tringle_calcolator
             _trianglePolygon.Fill = new SolidColorBrush(fill);
             _trianglePolygon.Points = new PointCollection { ptA, ptB, ptC };
 
-            if (Math.Abs(r.AngleA - 90) < eps)      DrawRightAngleMark(ptA, ptB, ptC, true);
+            if (Math.Abs(r.AngleA - 90) < eps) DrawRightAngleMark(ptA, ptB, ptC, true);
             else if (Math.Abs(r.AngleB - 90) < eps) DrawRightAngleMark(ptB, ptA, ptC, true);
             else if (Math.Abs(r.AngleC - 90) < eps) DrawRightAngleMark(ptC, ptA, ptB, true);
-            else                                    DrawRightAngleMark(default,default,default,default);
+            else DrawRightAngleMark(default, default, default, show: false);
 
             PositionCanvasLabels(ptA, ptB, ptC);
         }
@@ -507,6 +522,13 @@ namespace Tringle_calcolator
                 CanvasABBox.Text = string.Empty;
                 CanvasBCBox.Text = string.Empty;
                 CanvasCABox.Text = string.Empty;
+
+                _hasResult = false;
+                if (_isRightTriangleMode)
+                {
+                    CTextBox.Text = "90";
+                    _angleC = 90.0;
+                }
             }
             finally
             {
@@ -515,6 +537,30 @@ namespace Tringle_calcolator
 
             DrawDefaultTriangle();
             UpdateEnterButton(ready: false);
+        }
+
+        private void ClearAllExept(TextBox ToKeep)
+        {
+            _hasResult = false;
+            _suppressTextChanged = true;
+            try
+            {
+                foreach (var pair in _boxSetters)
+                {
+                    if (pair.Key == ToKeep) continue;
+                    if (_isRightTriangleMode && pair.Key == CTextBox) continue;
+
+                    pair.Key.Text = string.Empty;
+                    pair.Value(null);
+                }
+                if (ToKeep != ABTextBox) CanvasABBox.Text = string.Empty;
+                if (ToKeep != BCTextBox) CanvasBCBox.Text = string.Empty;
+                if (ToKeep != CATextBox) CanvasCABox.Text = string.Empty;
+            }
+            finally
+            {
+                _suppressTextChanged = false;
+            }
         }
 
 
