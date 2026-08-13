@@ -155,4 +155,5 @@ namespace Tringle_calcolator
         private static double ToDeg(double rad) => rad * 180.0 / Math.PI;
         private static double Acos(double x) => ToDeg(Math.Acos(Math.Clamp(x, -1.0, 1.0)));
     }
+
 }

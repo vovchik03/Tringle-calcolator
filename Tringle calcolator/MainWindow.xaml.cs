@@ -103,10 +103,11 @@ namespace Tringle_calcolator
             //ClearAll(); // Очищуємо результат при будь-якій зміні, кайф
             bool ready = TriangleCalculator.HasEnoughData(
                 _sideAB, _sideBC, _sideCA,
-                _angleA, _angleB, _angleC);
+                _angleA, _angleB, _angleC)
+                && IsInputConsistent();
 
             UpdateEnterButton(ready);
-            
+
         }
 
 
@@ -119,7 +120,7 @@ namespace Tringle_calcolator
             canvasBox.TextChanged += (_, _) =>
             {
                 if (_suppressTextChanged) return;
-                if(_hasResult) ClearAllExept(panelBox);
+                if (_hasResult) ClearAllExept(panelBox);
                 _suppressTextChanged = true;
                 panelBox.Text = canvasBox.Text;
                 _suppressTextChanged = false;
@@ -227,7 +228,7 @@ namespace Tringle_calcolator
 
         private void SetMode(bool rightTriangle)
         {
-            
+
             _isRightTriangleMode = rightTriangle;
             ClearAll();
 
@@ -274,7 +275,7 @@ namespace Tringle_calcolator
 
             var defaultResult = _isRightTriangleMode ? TriangleCalculator.TryCalculate(17, 8, 15, null, null, null) : TriangleCalculator.TryCalculate(6, 7, 5, null, null, null);
 
-            if(defaultResult != null)
+            if (defaultResult != null)
             {
                 DrawTriangle(defaultResult, defaultColor: true);
             }
@@ -338,7 +339,7 @@ namespace Tringle_calcolator
             Point ptB = new Point(startX + r.SideBC * scale, baseY);
             Point ptA = new Point(startX + aXoffset * scale, baseY - height * scale);
 
-           
+
             if (_trianglePolygon == null)
             {
                 _trianglePolygon = new Polygon
@@ -466,7 +467,7 @@ namespace Tringle_calcolator
             if (_trianglePolygon != null)
             {
                 _trianglePolygon.Fill = new SolidColorBrush(Color.FromRgb(0xFF, 0x44, 0x44));
-                MessageBox.Show("INVALID");
+                MessageBox.Show("IMBISILE");
             }
         }
 
@@ -497,7 +498,7 @@ namespace Tringle_calcolator
         /// Знаходить дочірній елемент у Visual Tree за іменем.
         /// Потрібно для зміни кольору KeyBody всередині шаблону кнопки.
         /// </summary>
-        
+
         // ────────────────────────────────────────────
         // ОБНУЛЕННЯ ЗНАЧЕНЬ ПРИ ПЕРЕКЛЮЧЕННІ
         //─────────────────────────────────────────────
@@ -564,5 +565,83 @@ namespace Tringle_calcolator
         }
 
 
+        // ПЕРЕНЕСТИ В ІНШИЙ ФАЙЛ
+        private const double SideEps = 1e-6;
+        private const double AngleEps = 0.01;
+
+        /// <summary>
+        /// Перевіряє, чи введені дані взагалі можуть описувати трикутник.
+        /// Не рахує його — лише відсіює завідомо неможливі комбінації.
+        /// </summary>
+        /// 
+
+        private bool IsInputConsistent()
+        {
+            var angles = new[] { _angleA, _angleB, _angleC };
+
+            // Перевіряємо, чи всі кути в межах (0, 180)
+            foreach (var a in angles)
+            {
+                if (a.HasValue && (a.Value <= 0 || a.Value >= 180))
+                {
+                    return false;
+                }
+            }
+
+            // Перевіряємо, чи сума кутів не перевищує 180
+            int knownAngles = angles.Count(a => a.HasValue);
+            double sumAngles = angles.Where(a => a.HasValue).Sum(a => a.Value);
+
+            if (knownAngles == 3 && Math.Abs(sumAngles - 180) > AngleEps)
+            {
+                return false;
+            }
+            if (knownAngles < 3 && sumAngles >= 180 - AngleEps)
+            {
+                return false;
+            }
+
+            // Перевіряємо, чи всі сторони додатні
+
+            if (_sideAB.HasValue && _sideBC.HasValue && _sideCA.HasValue)
+            {
+                double x = _sideAB.Value, y = _sideBC.Value, z = _sideCA.Value;
+                if (x + y <= z + SideEps || x + z <= y + SideEps || y + z <= x + SideEps)
+                {
+                    return false;
+                }
+            }
+
+            // Навпроти кута 90 градусів має бути найдовша сторона
+            if (!CheckOpositeSide(_angleA, _sideBC, _sideAB, _sideCA)) return false;
+            if (!CheckOpositeSide(_angleB, _sideCA, _sideAB, _sideBC)) return false;
+            if (!CheckOpositeSide(_angleC, _sideAB, _sideBC, _sideCA)) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// angle — кут; opposite — сторона навпроти нього; other1/other2 — дві інші.
+        /// Якщо кут тупий або прямий, opposite мусить бути строго найбільшою.
+        /// </summary>
+        /// 
+        private static bool CheckOpositeSide(double? angle, double? opposite, double? other1, double? other2)
+        {
+            if (!angle.HasValue || angle.Value < 90 - AngleEps)
+            {
+                return true; // кут гострий або невідомий — немає обмежень
+            }
+            if (!opposite.HasValue) return true; // сторона навпроти невідома — не можемо перевірити
+
+            if (other1.HasValue && opposite.Value <= other1.Value + SideEps)
+            {
+                return false;
+            }
+            if (other2.HasValue && opposite.Value <= other2.Value + SideEps)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
