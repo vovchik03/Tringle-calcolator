@@ -49,13 +49,16 @@
                                 <Grid>
                                     <StackPanel HorizontalAlignment="Right"
                                                 VerticalAlignment="Bottom"
-                                                Margin="0,0,12,10">   
+                                                Margin="0,0,12,10">
 
                                         <TextBlock x:Name="EnterArrow"
-                                            Text="↵"
-                                            FontSize="20"
-                                            Foreground="#d0d0d0"
-                                            HorizontalAlignment="Right"/>
+           Text="↵"
+           FontSize="20"
+           HorizontalAlignment="Right">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="#D0D0D0"/>
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
 
                                         <!-- дві копії тексту в одній комірці Grid -->
                                         <Grid HorizontalAlignment="Right">
@@ -75,10 +78,19 @@
 
                                             <!-- шар 2: чіткий текст -->
                                             <TextBlock x:Name="EnterText"
-                                                Text="{TemplateBinding Content}"
-                                                FontSize="{TemplateBinding FontSize}"
-                                                FontWeight="{TemplateBinding FontWeight}"
-                                                Foreground="#5A5A5A"/>
+           Text="{TemplateBinding Content}"
+           FontSize="{TemplateBinding FontSize}"
+           FontWeight="{TemplateBinding FontWeight}">
+                                                <TextBlock.Foreground>
+                                                    <SolidColorBrush Color="#5A5A5A"/>
+                                                </TextBlock.Foreground>
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect Color="#00FF7F"
+                          BlurRadius="22"
+                          ShadowDepth="0"
+                          Opacity="0"/>
+                                                </TextBlock.Effect>
+                                            </TextBlock>
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -87,32 +99,63 @@
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsEnabled" Value="True">
-                                <Setter TargetName="EnterText" Property="Foreground" Value="#C8FFDC"/>
-                                <Setter TargetName="EnterArrow" Property="Foreground" Value="#8CFFB8"/>
-                                <Setter TargetName="EnterText" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="#00FF7F"
-                                                          BlurRadius="22"
-                                                          ShadowDepth="0"
-                                                          Opacity="0.95"/>
-                                    </Setter.Value>
-                                </Setter>
 
                                 <Trigger.EnterActions>
-                                    <BeginStoryboard x:Name="GlowPulse">
+                                    <BeginStoryboard>
                                         <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="EnterText"
+                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                To="#C8FFDC" Duration="0:0:0.5">
+                                                <ColorAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseOut"/>
+                                                </ColorAnimation.EasingFunction>
+                                            </ColorAnimation>
+
+                                            <ColorAnimation Storyboard.TargetName="EnterArrow"
+                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                To="#8CFFB8" Duration="0:0:0.5"/>
+
+                                            <DoubleAnimation Storyboard.TargetName="EnterText"
+                                 Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
+                                 To="0.95" Duration="0:0:0.5"/>
+
+                                            <!-- поява ореолу -->
                                             <DoubleAnimation Storyboard.TargetName="EnterGlow"
-                                                             Storyboard.TargetProperty="Opacity"
-                                                             From="0.25" To="1"
-                                                             Duration="0:0:1.1"
-                                                             AutoReverse="True"
-                                                             RepeatBehavior="Forever"/>
+                                 Storyboard.TargetProperty="Opacity"
+                                 To="1" Duration="0:0:0.5"/>
+
+                                            <!-- пульсація стартує вже після появи -->
+                                            <DoubleAnimation Storyboard.TargetName="EnterGlow"
+                                 Storyboard.TargetProperty="Opacity"
+                                 BeginTime="0:0:0.5"
+                                 From="1" To="0.35"
+                                 Duration="0:0:1.1"
+                                 AutoReverse="True"
+                                 RepeatBehavior="Forever"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
 
                                 <Trigger.ExitActions>
-                                    <StopStoryboard BeginStoryboardName="GlowPulse"/>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="EnterText"
+                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                To="#5A5A5A" Duration="0:0:0.35"/>
+
+                                            <ColorAnimation Storyboard.TargetName="EnterArrow"
+                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                To="#D0D0D0" Duration="0:0:0.35"/>
+
+                                            <DoubleAnimation Storyboard.TargetName="EnterText"
+                                 Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
+                                 To="0" Duration="0:0:0.35"/>
+
+                                            <DoubleAnimation Storyboard.TargetName="EnterGlow"
+                                 Storyboard.TargetProperty="Opacity"
+                                 To="0" Duration="0:0:0.35"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
                                 </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
