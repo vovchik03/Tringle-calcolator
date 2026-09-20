@@ -52,9 +52,9 @@
                                                 Margin="0,0,12,10">
 
                                         <TextBlock x:Name="EnterArrow"
-           Text="↵"
-           FontSize="20"
-           HorizontalAlignment="Right">
+                                                   Text="↵"
+                                                   FontSize="20"
+                                                   HorizontalAlignment="Right">
                                             <TextBlock.Foreground>
                                                 <SolidColorBrush Color="#D0D0D0"/>
                                             </TextBlock.Foreground>
@@ -78,17 +78,17 @@
 
                                             <!-- шар 2: чіткий текст -->
                                             <TextBlock x:Name="EnterText"
-           Text="{TemplateBinding Content}"
-           FontSize="{TemplateBinding FontSize}"
-           FontWeight="{TemplateBinding FontWeight}">
+                                                       Text="{TemplateBinding Content}"
+                                                       FontSize="{TemplateBinding FontSize}"
+                                                       FontWeight="{TemplateBinding FontWeight}">
                                                 <TextBlock.Foreground>
                                                     <SolidColorBrush Color="#5A5A5A"/>
                                                 </TextBlock.Foreground>
                                                 <TextBlock.Effect>
                                                     <DropShadowEffect Color="#00FF7F"
-                          BlurRadius="22"
-                          ShadowDepth="0"
-                          Opacity="0"/>
+                                                                      BlurRadius="22"
+                                                                      ShadowDepth="0"
+                                                                      Opacity="0"/>
                                                 </TextBlock.Effect>
                                             </TextBlock>
                                         </Grid>
@@ -112,26 +112,26 @@
                                             </ColorAnimation>
 
                                             <ColorAnimation Storyboard.TargetName="EnterArrow"
-                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
-                                To="#8CFFB8" Duration="0:0:0.5"/>
+                                                            Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                                            To="#8CFFB8" Duration="0:0:0.5"/>
 
                                             <DoubleAnimation Storyboard.TargetName="EnterText"
-                                 Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
-                                 To="0.95" Duration="0:0:0.5"/>
+                                                             Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
+                                                             To="0.95" Duration="0:0:0.5"/>
 
                                             <!-- поява ореолу -->
                                             <DoubleAnimation Storyboard.TargetName="EnterGlow"
-                                 Storyboard.TargetProperty="Opacity"
-                                 To="1" Duration="0:0:0.5"/>
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="1" Duration="0:0:0.5"/>
 
                                             <!-- пульсація стартує вже після появи -->
                                             <DoubleAnimation Storyboard.TargetName="EnterGlow"
-                                 Storyboard.TargetProperty="Opacity"
-                                 BeginTime="0:0:0.5"
-                                 From="1" To="0.35"
-                                 Duration="0:0:1.1"
-                                 AutoReverse="True"
-                                 RepeatBehavior="Forever"/>
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             BeginTime="0:0:0.5"
+                                                             From="1" To="0.35"
+                                                             Duration="0:0:1.1"
+                                                             AutoReverse="True"
+                                                             RepeatBehavior="Forever"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -140,20 +140,20 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="EnterText"
-                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
-                                To="#5A5A5A" Duration="0:0:0.35"/>
+                                                            Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                                            To="#5A5A5A" Duration="0:0:0.35"/>
 
                                             <ColorAnimation Storyboard.TargetName="EnterArrow"
-                                Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
-                                To="#D0D0D0" Duration="0:0:0.35"/>
+                                                            Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)"
+                                                            To="#D0D0D0" Duration="0:0:0.35"/>
 
                                             <DoubleAnimation Storyboard.TargetName="EnterText"
-                                 Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
-                                 To="0" Duration="0:0:0.35"/>
+                                                             Storyboard.TargetProperty="Effect.(DropShadowEffect.Opacity)"
+                                                             To="0" Duration="0:0:0.35"/>
 
                                             <DoubleAnimation Storyboard.TargetName="EnterGlow"
-                                 Storyboard.TargetProperty="Opacity"
-                                 To="0" Duration="0:0:0.35"/>
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.35"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -240,13 +240,38 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button x:Name="TriangleDovilnyi" Grid.Column="0" Background="Transparent" BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
                 <Image Source="/1.png" Stretch="None" Cursor="Hand" >
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    </Image.RenderTransform>
                     <Image.Style>
                         <Style TargetType="Image">
-                            <Setter Property="Opacity" Value="0.8"/>
+                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Opacity" Value="1"/>
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.15" Duration="0:0:0.12"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.15" Duration="0:0:0.12"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.12"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.12"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -254,13 +279,38 @@
                 </Image>
             </Button>
             <Button x:Name="TrianglePriamokutnyi" Grid.Column="1" Background="Transparent" BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
                 <Image Source="/priamyi.png" Cursor="Hand" Stretch="None">
+                    <Image.RenderTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    </Image.RenderTransform>
                     <Image.Style>
                         <Style TargetType="Image">
-                            <Setter Property="Opacity" Value="0.8"/>
+                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Opacity" Value="1"/>
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.15" Duration="0:0:0.12"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.15" Duration="0:0:0.12"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.12"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.12"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -269,7 +319,7 @@
             </Button>
         </Grid>
         <Grid Grid.Column="1" Grid.Row="1">
-            <Border Background="#333333" Opacity="0.2"/>
+            <Border Background="#333333" Opacity="0.06"/>
             <Canvas x:Name="CANVAS">
                 <!-- Підписи вершин -->
                 <TextBlock x:Name="LabelA" Text="A" Foreground="White" FontFamily="Montserrat" FontSize="24" FontWeight="Bold"/>

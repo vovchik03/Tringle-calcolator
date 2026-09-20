@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -304,6 +305,15 @@ namespace Tringle_calcolator
         /// </summary>
         /// 
         private static double ToRoad(double deg) => deg * Math.PI / 180.0;
+
+        /// <summary>Задає колір заповнення трикутника і glow того ж кольору.</summary>
+        private void SetTriangleColor(Color color)
+        {
+            if (_trianglePolygon == null) return;
+            _trianglePolygon.Fill = new SolidColorBrush(color) { Opacity = 0.06 };
+            if (_trianglePolygon.Effect is DropShadowEffect glow)
+                glow.Color = color;
+        }
         private void DrawTriangle(TriangleResult r, bool defaultColor = false)
         {
             if (CANVAS.ActualWidth <= 0 || CANVAS.ActualHeight <= 0) return;
@@ -345,14 +355,21 @@ namespace Tringle_calcolator
                 _trianglePolygon = new Polygon
                 {
                     Stroke = new SolidColorBrush(Colors.White),
-                    StrokeThickness = 1.5
+                    StrokeThickness = 4,
+                    StrokeLineJoin = PenLineJoin.Round,
+                    Effect = new DropShadowEffect
+                    {
+                        ShadowDepth = 0,
+                        BlurRadius = 18,
+                        Opacity = 0.7
+                    }
                 };
                 Canvas.SetLeft(_trianglePolygon, 0);
                 Canvas.SetTop(_trianglePolygon, 0);
                 CANVAS.Children.Add(_trianglePolygon);
             }
 
-            _trianglePolygon.Fill = new SolidColorBrush(fill);
+            SetTriangleColor(fill);
             _trianglePolygon.Points = new PointCollection { ptA, ptB, ptC };
 
             if (Math.Abs(r.AngleA - 90) < eps) DrawRightAngleMark(ptA, ptB, ptC, true);
@@ -466,7 +483,7 @@ namespace Tringle_calcolator
             // Підсвічуємо трикутник червоним якщо дані несумісні
             if (_trianglePolygon != null)
             {
-                _trianglePolygon.Fill = new SolidColorBrush(Color.FromRgb(0xFF, 0x44, 0x44));
+                SetTriangleColor(Color.FromRgb(0xFF, 0x44, 0x44));
                 MessageBox.Show("IMBISILE");
             }
         }
