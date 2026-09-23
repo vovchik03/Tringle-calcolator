@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -59,6 +60,16 @@ namespace Tringle_calcolator
             SyncCanvasBox(CanvasBCBox, BCTextBox);
             SyncCanvasBox(CanvasCABox, CATextBox);
 
+            // Помаранчева рамка + glow на полі (ліва панель і канвас), поки воно у фокусі
+            foreach (var box in new[] { ABTextBox, BCTextBox, CATextBox, ATextBox, BTextBox, CTextBox,
+                                        CanvasABBox, CanvasBCBox, CanvasCABox })
+                AddFocusHighlight(box);
+
+            // Клік по букві кута на канвасі — фокус на відповідне поле кута
+            BindLabelToBox(LabelA, ATextBox);
+            BindLabelToBox(LabelB, BTextBox);
+            BindLabelToBox(LabelC, CTextBox);
+
             // Кнопки режиму
             TriangleDovilnyi.Click += (_, _) => SetMode(rightTriangle: false);
             TrianglePriamokutnyi.Click += (_, _) => SetMode(rightTriangle: true);
@@ -91,6 +102,56 @@ namespace Tringle_calcolator
                 if (_hasResult) ClearAllExept(box);
                 setter(ParseBox(box));
                 OnAnyInputChanged();
+            };
+        }
+
+
+        private static readonly Color FocusColor = Color.FromRgb(0xFF, 0x92, 0x27);
+        private static readonly Brush FieldBorderBrush = new SolidColorBrush(Color.FromRgb(0x55, 0x55, 0x55));
+        private static readonly Brush FieldFocusBrush = new SolidColorBrush(FocusColor);
+
+        /// <summary>
+        /// Поки поле у фокусі — рамка помаранчева і навколо плавно з'являється glow того ж кольору.
+        /// </summary>
+        private static void AddFocusHighlight(TextBox box)
+        {
+            if (box.Parent is not Border border) return;
+
+            var glow = new DropShadowEffect
+            {
+                Color = FocusColor,
+                ShadowDepth = 0,
+                BlurRadius = 14,
+                Opacity = 0
+            };
+            border.Effect = glow;
+
+            var duration = TimeSpan.FromMilliseconds(180);
+            box.GotKeyboardFocus += (_, _) =>
+            {
+                border.BorderBrush = FieldFocusBrush;
+                glow.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0.9, duration));
+            };
+            box.LostKeyboardFocus += (_, _) =>
+            {
+                border.BorderBrush = FieldBorderBrush;
+                glow.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(0, duration));
+            };
+        }
+
+        /// <summary>
+        /// Робить букву вершини клікабельною: клік ставить фокус у поле кута і виділяє його текст.
+        /// </summary>
+        private void BindLabelToBox(TextBlock label, TextBox box)
+        {
+            label.Cursor = Cursors.Hand;
+            label.Background = Brushes.Transparent; // клік ловиться по всій площі, а не тільки по пікселях букви
+            label.Padding = new Thickness(6, 2, 6, 2);
+            label.MouseLeftButtonDown += (_, e) =>
+            {
+                box.Focus();
+                box.SelectAll();
+                e.Handled = true;
             };
         }
 

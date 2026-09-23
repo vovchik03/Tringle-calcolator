@@ -319,7 +319,7 @@
             </Button>
         </Grid>
         <Grid Grid.Column="1" Grid.Row="1">
-            <Border Background="#333333" Opacity="0.06"/>
+            <Border Background="#333333" Opacity="0"/>
             <Canvas x:Name="CANVAS">
                 <!-- Підписи вершин -->
                 <TextBlock x:Name="LabelA" Text="A" Foreground="White" FontFamily="Montserrat" FontSize="24" FontWeight="Bold"/>
