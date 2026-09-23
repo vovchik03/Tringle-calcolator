@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tringle_calcolator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="MainWindow" Height="600" Width="1000" MinWidth="684" MinHeight="404">
     <Window.Resources>
 
         <!-- Стиль 1: форма клавіші Enter -->
@@ -222,7 +222,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition  Width="20*"/>
+            <ColumnDefinition  Width="20*" MinWidth="188"/>
             <ColumnDefinition  Width="60*"/>
             <ColumnDefinition  Width="25*"/>
         </Grid.ColumnDefinitions>
@@ -344,52 +344,53 @@
                 </Border>
             </Canvas>
         </Grid>
-        <Grid Grid.Column="0" Grid.Row="1" Margin="15">
+        <!-- Фіксовані розміри = розміри при стандартному вікні 1000x600, щоб поля не стискались при ресайзі -->
+        <Grid Grid.Column="0" Grid.Row="1" Margin="15" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="79"/>
+                <ColumnDefinition Width="79"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="48"/>
             </Grid.RowDefinitions>
 
             <!-- AB -->
             <TextBlock Text="AB:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="0" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="0" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="ABTextBox" Grid.Row="0" Grid.Column="1"  Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
             <!-- BC -->
             <TextBlock Text="BC:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="1" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="1" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="BCTextBox" Grid.Row="1" Grid.Column="1" Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
             <!-- CA -->
             <TextBlock Text="CA:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="2" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="2" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="CATextBox" Grid.Row="2" Grid.Column="1" Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
             <!-- ∠A -->
             <TextBlock Text="∠A:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="3" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="3" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="ATextBox" Grid.Row="3" Grid.Column="1" Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
             <!-- ∠B -->
             <TextBlock Text="∠B:" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="4" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="4" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="BTextBox" Grid.Row="4" Grid.Column="1" Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
             <!-- ∠C -->
             <TextBlock Text="∠C:" Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Foreground="white" HorizontalAlignment="Center" FontSize="20" FontFamily="Montserrat"/>
-            <Border Grid.Row="5" Grid.Column="1" Margin="6 10" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
+            <Border Grid.Row="5" Grid.Column="1" Margin="6 10" Width="67" Height="28" CornerRadius="10" BorderBrush="#555" BorderThickness="1" Background="#1A1A1A">
                 <TextBox x:Name="CTextBox" Grid.Row="5" Grid.Column="1" Background="Transparent" BorderThickness ="0" TextAlignment="Center" FontSize="16" Foreground="White"/>
             </Border>
         </Grid>

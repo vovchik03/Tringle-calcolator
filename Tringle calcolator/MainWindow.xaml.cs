@@ -343,7 +343,8 @@ namespace Tringle_calcolator
 
             double scale = Math.Min(availW / totalWidth, availH / height);
             double startX = padding + (availW - totalWidth * scale) / 2.0 - leftExtent * scale;
-            double baseY = padding + availH;
+            // центруємо по вертикалі: основа нижче центру на половину висоти трикутника
+            double baseY = padding + (availH + height * scale) / 2.0;
 
             Point ptC = new Point(startX, baseY);
             Point ptB = new Point(startX + r.SideBC * scale, baseY);
