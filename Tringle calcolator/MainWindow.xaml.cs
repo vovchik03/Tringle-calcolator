@@ -140,7 +140,8 @@ namespace Tringle_calcolator
         }
 
         /// <summary>
-        /// Робить букву вершини клікабельною: клік ставить фокус у поле кута і виділяє його текст.
+        /// Робить букву вершини клікабельною: клік ставить фокус у поле кута і виділяє його текст,
+        /// при наведенні буква плавно збільшується до 110 % і злегка світиться білим.
         /// </summary>
         private void BindLabelToBox(TextBlock label, TextBox box)
         {
@@ -153,6 +154,30 @@ namespace Tringle_calcolator
                 box.SelectAll();
                 e.Handled = true;
             };
+
+            // Scale 1.1 при наведенні (RenderTransform не впливає на позиціонування букви)
+            var scale = new ScaleTransform(1, 1);
+            label.RenderTransform = scale;
+            label.RenderTransformOrigin = new Point(0.5, 0.5);
+            // Легкий білий glow при наведенні
+            var glow = new DropShadowEffect
+            {
+                Color = Colors.White,
+                ShadowDepth = 0,
+                BlurRadius = 12,
+                Opacity = 0
+            };
+            label.Effect = glow;
+
+            var duration = TimeSpan.FromMilliseconds(120);
+            void AnimateTo(double to, double glowOpacity)
+            {
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(to, duration));
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(to, duration));
+                glow.BeginAnimation(DropShadowEffect.OpacityProperty, new DoubleAnimation(glowOpacity, duration));
+            }
+            label.MouseEnter += (_, _) => AnimateTo(1.1, 0.6);
+            label.MouseLeave += (_, _) => AnimateTo(1.0, 0);
         }
 
 
