@@ -42,12 +42,18 @@ namespace Tringle_calcolator
         // Полігон трикутника на канвасі мітка прямого кута
         private Polygon? _trianglePolygon;
         private Polyline? _rightAngleMark;
+        private readonly TriangleDrawAnimator _drawAnimator;
         // ─────────────────────────────────────────────
         //  ІНІЦІАЛІЗАЦІЯ
         // ─────────────────────────────────────────────
         public MainWindow()
         {
             InitializeComponent();
+
+            // Букви — в тому ж порядку, що й точки полігону в DrawTriangle (C, B, A)
+            _drawAnimator = new TriangleDrawAnimator(
+                new[] { LabelC, LabelB, LabelA },
+                new[] { CanvasABBorder, CanvasBCBorder, CanvasCАBorder });
             // Підписка на події TextBox лівої панелі
             SubscribeTextBox(ABTextBox, v => _sideAB = v);
             SubscribeTextBox(BCTextBox, v => _sideBC = v);
@@ -75,8 +81,13 @@ namespace Tringle_calcolator
             TrianglePriamokutnyi.Click += (_, _) => SetMode(rightTriangle: true);
 
             // Канвас
-            CANVAS.Loaded += (_, _) => DrawDefaultTriangle();
-            CANVAS.SizeChanged += (_, _) => RedrawCurrentTriangle();
+            CANVAS.Loaded += (_, _) => DrawDefaultTriangle(animate: true);
+            CANVAS.SizeChanged += (_, e) =>
+            {
+                // Перший SizeChanged (з нульового розміру) пропускаємо — трикутник з анімацією намалює Loaded
+                if (e.PreviousSize.Width == 0 || e.PreviousSize.Height == 0) return;
+                RedrawCurrentTriangle();
+            };
 
             // Початковий стан кнопки Enter — сіра, неактивна
             UpdateEnterButton(ready: false);
@@ -268,7 +279,7 @@ namespace Tringle_calcolator
             FillResults(result);
 
             // Малюємо трикутник
-            DrawTriangle(result);
+            DrawTriangle(result, animate: true);
 
             // Кнопка повертається в неактивний стан
             UpdateEnterButton(ready: false);
@@ -352,7 +363,7 @@ namespace Tringle_calcolator
         /// <summary>
         /// Малює стартовий трикутник 3-4-5 (помаранчевий)
         /// </summary>
-        private void DrawDefaultTriangle()
+        private void DrawDefaultTriangle(bool animate)
         {
             /* var defaultResult = TriangleCalculator.TryCalculate(3, 4, 5, null, null, null);
 
@@ -364,7 +375,7 @@ namespace Tringle_calcolator
 
             if (defaultResult != null)
             {
-                DrawTriangle(defaultResult, defaultColor: true);
+                DrawTriangle(defaultResult, defaultColor: true, animate: animate);
             }
         }
 
@@ -381,7 +392,7 @@ namespace Tringle_calcolator
             }
             else
             {
-                DrawDefaultTriangle();
+                DrawDefaultTriangle(animate: false);
             }
         }
 
@@ -396,11 +407,11 @@ namespace Tringle_calcolator
         private void SetTriangleColor(Color color)
         {
             if (_trianglePolygon == null) return;
-            _trianglePolygon.Fill = new SolidColorBrush(color) { Opacity = 0.06 };
+            _trianglePolygon.Fill = new SolidColorBrush(color) { Opacity = TriangleDrawAnimator.FillOpacity };
             if (_trianglePolygon.Effect is DropShadowEffect glow)
                 glow.Color = color;
         }
-        private void DrawTriangle(TriangleResult r, bool defaultColor = false)
+        private void DrawTriangle(TriangleResult r, bool defaultColor = false, bool animate = false)
         {
             if (CANVAS.ActualWidth <= 0 || CANVAS.ActualHeight <= 0) return;
             // DEFAULT COLOR SET UP HERE ----------------------------------------------------- DEFAULT COLOR SET UP HERE 
@@ -444,11 +455,12 @@ namespace Tringle_calcolator
                     Stroke = new SolidColorBrush(Colors.White),
                     StrokeThickness = 4,
                     StrokeLineJoin = PenLineJoin.Round,
+                    StrokeDashCap = PenLineCap.Round, // заокруглений "кінчик пера" під час анімації малювання
                     Effect = new DropShadowEffect
                     {
                         ShadowDepth = 0,
                         BlurRadius = 18,
-                        Opacity = 0.7
+                        Opacity = TriangleDrawAnimator.GlowOpacity
                     }
                 };
                 Canvas.SetLeft(_trianglePolygon, 0);
@@ -457,7 +469,9 @@ namespace Tringle_calcolator
             }
 
             SetTriangleColor(fill);
-            _trianglePolygon.Points = new PointCollection { ptA, ptB, ptC };
+            // Порядок точок = напрямок малювання контуру: основа C→B, далі до A і назад до C.
+            // Букви вершин в аніматорі передані в тому ж порядку
+            _trianglePolygon.Points = new PointCollection { ptC, ptB, ptA };
 
             if (Math.Abs(r.AngleA - 90) < eps) DrawRightAngleMark(ptA, ptB, ptC, true);
             else if (Math.Abs(r.AngleB - 90) < eps) DrawRightAngleMark(ptB, ptA, ptC, true);
@@ -465,6 +479,10 @@ namespace Tringle_calcolator
             else DrawRightAngleMark(default, default, default, show: false);
 
             PositionCanvasLabels(ptA, ptB, ptC);
+
+            // Анімація — останньою: їй потрібні вже виставлені точки полігону і мітки прямого кута
+            if (animate) _drawAnimator.Play(_trianglePolygon, _rightAngleMark);
+            else _drawAnimator.Finish(_trianglePolygon, _rightAngleMark);
         }
 
         private void DrawRightAngleMark(Point vertex, Point p1, Point p2, bool show)
@@ -640,7 +658,7 @@ namespace Tringle_calcolator
                 _suppressTextChanged = false;
             }
 
-            DrawDefaultTriangle();
+            DrawDefaultTriangle(animate: true);
             UpdateEnterButton(ready: false);
         }
 
