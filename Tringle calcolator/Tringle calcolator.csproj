@@ -7,6 +7,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Назва exe (TriangleCalculator.exe) і опис у Диспетчері задач — незалежно від назви проєкту -->
+    <AssemblyName>TriangleCalculator</AssemblyName>
+    <AssemblyTitle>Triangle Calculator</AssemblyTitle>
+    <!-- Іконка exe; вікно без власного Icon бере її ж -->
+    <ApplicationIcon>TriangleCalculator.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
