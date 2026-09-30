@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:Tringle_calcolator"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- Montserrat з папки fonts, вбудований у збірку. "#Montserrat" — назва сімейства всередині .ttf -->
+        <FontFamily x:Key="MontserratFont">pack://application:,,,/fonts/#Montserrat</FontFamily>
     </Application.Resources>
 </Application>
